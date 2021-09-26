@@ -1,5 +1,5 @@
 //
-// Created by 15255 on 5/30/2021.
+// Created by 15255 on 9/12/2021.
 //
 
 #ifndef PROJECT1_COURSE_H
@@ -152,7 +152,7 @@ public:
     }
 
     /**
-     * Overload < operator for obje ct comparison
+     * Overload < operator for object ct comparison
      */
     friend bool operator < (const Course& lhs, const Course& rhs) {
         return lhs.getRowId() < rhs.getRowId();
@@ -196,11 +196,6 @@ public:
 };
 
 // Other functions
-
-/**
- * Read data into a vector from the downloaded CSV file.
- * Returns true if everything goes well; false otherwise.
- */
 bool loadFromFile(std::string file, std::vector<Course>& objs) {
     std::ifstream fileInput;
     fileInput.open(file);
@@ -276,8 +271,7 @@ bool loadFromFile(std::string file, std::vector<Course>& objs) {
  * No courses with instructor existing but no email
  */
 void needInstructor(std::vector<Course>& objs) {
-    int numNeedInstructor = 0;
-    int numWithInstructor = 0;
+    int numNeedInstructor = 0, numWithInstructor = 0;
 
     for (Course& cour : objs) {
         std::string instructorInfo = cour.getInstructor();
@@ -296,74 +290,40 @@ void needInstructor(std::vector<Course>& objs) {
 }
 
 /**
- * To validate the data
- * Possible issue: incorrect row ID, empty fields(emails could be empty as no instructor assigned),
- * some instructor with no existing email
- * The total count of each issue would be output
- */
-void validFields(std::vector<Course>& objs) {
+ * Return the availability of the course*/
+void ifSeatAvailable(std::vector<Course>& objs){
     int i = 0;
-    int badRowId = 0, badCRN = 0, badMaxEnrollment = 0, badCurrEnrollment = 0, badSubject = 0;
-    int badTitle = 0, badCollege = 0, badInstructor = 0, badEmail = 0;
-    for (Course& cour : objs) {
-        // Row ID should always = i + 1
-        if (cour.getRowId() != i + 1) {
-            badRowId += 1;
+    for(Course& cour : objs){
+        if(cour.getMaxEnrollment() - cour.getCurrEnrollment() > 0) {
+            ++i;
         }
-        if (cour.getCRN() < 90000) {
-            badCRN += 1;
-        }
-        if (cour.getMaxEnrollment() == 0) {
-            badMaxEnrollment += 1;
-        }
-        if (cour.getCurrEnrollment() < 0) {
-            badCurrEnrollment += 1;
-        }
-
-        //check the string fields are good
-        std::string subjectValid = cour.getSubject();
-        if (subjectValid.empty()) {
-            badSubject += 1;
-        }
-        std::string titleValid = cour.getTitle();
-        if (titleValid.empty()) {
-            badTitle += 1;
-        }
-        std::string collegeValid = cour.getCollege();
-        if (collegeValid.empty()) {
-            badCollege += 1;
-        }
-        //check if there are existing teachers forget their email
-        std::string instructorValid = cour.getInstructor();
-        std::string emailValid = cour.getEmail();
-        if (instructorValid.empty()) {
-            badInstructor += 1;
-        }
-        else if (!instructorValid.empty() && emailValid.empty()) {
-            badEmail += 1;
-        }
-        i += 1;
     }
-    std::cout << std::string(95, '=') << std::endl;
     std::cout << std::endl;
-    if (badRowId > 0) {std::cout << "There are " << badRowId << " bad row ID. " << std::endl;}
-    if (badCRN > 0) {std::cout << "There are " << badCRN << " bad CRN. " << std::endl;}
-    if (badMaxEnrollment > 0) {std::cout << "There are " << badMaxEnrollment << " bad max enrollment data. " << std::endl;}
-    if (badCurrEnrollment > 0) {std::cout << "There are " << badCurrEnrollment << " bad current enrollment data. " << std::endl; }
-    if (badSubject > 0) {std::cout << "There are " << badSubject << " bad subject data. " << std::endl;}
-    if (badCollege > 0) {std::cout << "There are " << badCollege << " bad college data. " << std::endl;}
-    if (badTitle > 0) {std::cout << "There are " << badTitle << " bad title. " << std::endl;}
-    if (badInstructor > 0) {std::cout << "There are " << badInstructor << " bad instructor data. " << std::endl;}
-    if (badEmail > 0) {std::cout << "There are " << badEmail << " bad email data. " << std::endl;}
+    std::cout << "There are " << i << " classes available. " << std::endl;
     std::cout << std::string(95, '=') << std::endl;
 }
 
-
 /**
- * Assertions are cool. You can use them to test your objects and functions.
- * You don't have to use them, but they make testing your code easy!
- * If an assertion fails at runtime, your program will raise an exception.
- */
+ * Find the maximum and minimum max enrollment among the courses
+ * (if time) count the courses share the same max/min enrollment
+*/
+void maxEnrollment(std::vector<Course>& objs){
+    // Initialize the enrollment num
+    int numMax = 100, numMin = 100;
+    for(Course& cour : objs){
+        if(cour.getMaxEnrollment() >= numMax){
+            numMax = cour.getMaxEnrollment();
+        }
+        if(cour.getMaxEnrollment() <= numMin){
+            numMin = cour.getMaxEnrollment();
+        }
+    }
+    std::cout << std::endl;
+    std::cout << "Max Enrollment Number: " << numMax << std::endl;
+    std::cout << "Min Enrollment Number: " << numMin << std::endl;
+    std::cout << std::string(95, '=') << std::endl;
+}
+
 void CourseTest() {
     Course testObject = Course();
     // Test setters and getters
